@@ -9,7 +9,6 @@ from typing import List
 # Rows and columns
 rows = 25
 columns = 50
-boardDead = False
 
 # Create list type
 listtype = List
