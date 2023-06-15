@@ -24,14 +24,30 @@ class Cell:
     # Mark to be redrawn
     change: bool = False
 
+# Boards are lists containing lists containing Cells
 boardtype = listtype[listtype[Cell]]
 
-def create_grid(rows, columns):
+# Global variable to stop/play the simulation
+stopFlag = True
+
+"""
+Creates a grid with Cells randomly set to alive or dead.
+
+Parameters:
+rows (int): the number of rows in the grid.
+columns (int): the number of columns in the grid.
+
+Returns (list): the randomly set grid as a list
+"""
+def create_grid(rows: int, columns: int) -> list:
     return [[Cell(round(random())) for i in range(rows)] for j in range(columns)]
 
-board = create_grid(rows, columns)
+"""
+Randomly set Cells in the board as alive or dead to initialise board.
 
-# Random board initialiser
+Parameters:
+board: The board to initialise.
+"""
 def random_board_init(board: boardtype) -> None:
     for row in range(len(board)):
         for column in range(len(board[0])):
@@ -44,7 +60,14 @@ def random_board_init(board: boardtype) -> None:
             else:
                 board[row][column].value = 1
 
-# Update canvas
+"""
+Draws a grid of rectangles with the specified rows and columns. Each rectangle is 20x20 pixels.
+If a cell is alive, it is coloured black; otherwise it is coloured white. Only cells that have
+changed states from the previous board are redrawn.
+
+Parameters:
+f (tk.Canvas): The figure window.
+"""
 def update_canvas(f: tk.Canvas) -> None:
     for row in range(len(board)):
         for column in range(len(board[0])):
@@ -56,8 +79,17 @@ def update_canvas(f: tk.Canvas) -> None:
                     field.create_rectangle(row*21, column*21, row*21+20, column*21+20, fill='white')
                     board[row][column].change = False
 
-# Get the number of neighboring alive cells
-def get_number_of_alive_neighbors(board: list[list[Cell]], row: int, column: int) -> int:
+"""
+Determines the number of alive neighbors surrounding a given Cell.
+
+Parameters:
+board (boardtype): The board containing the cells
+row (int): the row the Cell to check is on
+column (int): the column the Cell to check is on
+
+Returns (int): the number of alive neighbours
+"""
+def get_number_of_alive_neighbors(board: boardtype, row: int, column: int) -> int:
     aliveNeighbors = 0
     for r in range(row-1, row+2):  # -1, 0, 1
         for c in range(column-1, column+2):  # -1; 0; 1
@@ -70,7 +102,14 @@ def get_number_of_alive_neighbors(board: list[list[Cell]], row: int, column: int
 
     return aliveNeighbors
 
-def check_all_cells(board: list[list[Cell]]) -> None:
+"""
+Applies the rules of Conway's Game of Life to each cell on the board. Marks Cells to be
+alive or dead and if their value changes.
+
+Parameters:
+board (boardtype): the board containing the Cells
+"""
+def check_all_cells(board: boardtype) -> None:
     for row in range(len(board)):
         for column in range(len(board[0])):
             # Determine number of alive neighbors
@@ -95,41 +134,45 @@ def check_all_cells(board: list[list[Cell]]) -> None:
                     # Cell remains dead
                     board[row][column].marked = False
                     
-# Update the board
-def update_board(board: list[list[Cell]]) -> None:
-    global boardDead
-    numAlive = 0
+"""
+Updates the Cells that require their values to be changed.
+
+Parameters:
+board (boardtype): the board containign the Cells.
+"""
+def update_board(board: boardtype) -> None:
     for row in range(len(board)):
         for column in range(len(board[0])):
-            if board[row][column].marked == True:
-                board[row][column].value = 1
-                numAlive += 1
-            else:
-                board[row][column].value = 0
+            # Check if Cell has been marked for change
+            if board[row][column].change == True:
+                if board[row][column].marked == True:
+                    board[row][column].value = 1
+                else:
+                    board[row][column].value = 0
                 
-    if (numAlive == 0):
-        boardDead = True
-                
-# Run the simulation
-def run_and_canvas(board: list[list[Cell]], f: tk.Canvas) -> None:
+"""
+Checks the Cells and updates the board and canvas.
+
+Parameters:
+board (boardtype): the board containing the Cells.
+f (tk.Canvas): the figure window/canvas
+"""
+def run_and_canvas(board: boardtype, f: tk.Canvas) -> None:
     check_all_cells(board)
     update_board(board)
     update_canvas(f)
 
-# Loop the board. If the board contains no living cells, restart the board
-stopFlag = True
+"""
+Loops through the logic and updates the graphics window.
+"""
 def loop():
-    global boardDead
     while (not stopFlag):
-        if (not boardDead):
-            run_and_canvas(board, field)
-            root.update()
-        else:
-            boardDead = False
-            random_board_init(board)
-            root.update()
+        run_and_canvas(board, field)
+        root.update()
 
-# Pause and play the board
+"""
+Function for the Pause/Play button. Sets the global stopFlag variable
+"""
 def pause_play():
     global stopFlag
     if (stopFlag):      # Play
@@ -138,15 +181,16 @@ def pause_play():
     else:               # Pause
         stopFlag = True
 
-# Restart the board
+"""
+Function for the restart button. Re-initalises the board.
+"""
 def reset():
-    global boardDead
-    boardDead = False
-    
     # Get new random board
     random_board_init(board)
     run_and_canvas(board, field)
     root.update()
+
+
 
 # Create window
 root = tk.Tk()
@@ -161,6 +205,8 @@ pausePlay = tk.Button(root, text="Pause/Play", command=lambda : pause_play())
 pausePlay.pack()
 resart = tk.Button(root, text="Restart", command=lambda : reset())
 resart.pack()
+
+board = create_grid(rows, columns)
 
 # Draw initial canvas
 for i in range(len(board)):
