@@ -11,20 +11,29 @@
 
 import time
 
-def create_grid(rows, columns):
+"""
+Creates an empty grid with the specified rows and colomns.
+
+Parameters:
+rows (int): Number of rows in the grid.
+columns (int): Number of columns in the grid.
+
+Returns (list): The empty grid as a List.
+"""
+def create_grid(rows: int, columns: int) -> list:
     return [[0 for i in range(columns)] for j in range(rows)]
 
 """
 Function to create the next generation of the board.
 
 Parameters:
-grid: List containing the grid
-rows: Number of rows in the grid
-columns: Number of columns in the grid
+grid (list): List containing the grid
+rows (int): Number of rows in the grid
+columns (int): Number of columns in the grid
 
-Returns: The new grid as a List.
+Returns (list): The new grid as a List.
 """
-def next_generation(grid, rows, columns) -> list:
+def next_generation(grid: list, rows: int, columns: int) -> list:
     # Initialise empty board
     future = create_grid(rows, columns)
     
@@ -54,20 +63,19 @@ def next_generation(grid, rows, columns) -> list:
     # Return new generation
     return future
 
-
 """
 Determines the number of neighbors alive for a specific cell.
 
 Parameters:
-row: the row the cell is on
-column: the column the cell is on
-grid: the List containing the grid
-rows: the number of rows in the grid
-columns: the number of columns in the grid
+row (int): the row the cell is on
+column (int): the column the cell is on
+grid (list): the List containing the grid
+rows (int): the number of rows in the grid
+columns (int): the number of columns in the grid
 
-Returns: The number of alive cells.
+Returns (int): The number of alive cells.
 """
-def get_number_of_alive_neighbors(row, column, grid, rows, columns) -> int:
+def get_number_of_alive_neighbors(row: int, column: int, grid: list, rows: int, columns: int) -> int:
     aliveNeighbors = 0
     for i in range(-1, 2):  # -1, 0, 1
         for j in range(-1, 2):  # -1; 0; 1
@@ -82,24 +90,26 @@ def get_number_of_alive_neighbors(row, column, grid, rows, columns) -> int:
     return aliveNeighbors
 
 """
-Steps the board and returns the new board
+Steps the board. Prints the board to the terminal and returns the new board
 
 Parameters:
-grid: list containing the current state of the board
-rows: the number of rows in the board
-columns: the number of columns in the board
+grid (list): list containing the current state of the board
+rows (int): the number of rows in the board
+columns (int): the number of columns in the board
+
+Returns (list): the new board
 """
-def step_board(grid, rows, columns) -> list:
-    
+def step_board(grid: list, rows: int, columns: int) -> list:
         for i in range(rows):
             for j in range(columns):
-                
+                # Check if cell is alive or dead
                 if (grid[i][j] == 0):
                     print(".", end="")
                 else:
                     print("#", end="")
-                
+            # Print newline after each row.
             print()
+        # Print newline after each board.
         print()
         
         return next_generation(grid, rows, columns)
